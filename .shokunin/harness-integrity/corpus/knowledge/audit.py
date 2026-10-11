@@ -1,4 +1,4 @@
-"""Read-only, live audit of the four minted global harness triples.
+"""Read-only, live audit of all ledger-minted global harness triples.
 
 Run from the project root with the prime-agent kernel venv:
   ~/.prime/agent/kernel-venv/bin/python .shokunin/harness-integrity/corpus/knowledge/audit.py
@@ -15,13 +15,15 @@ manifest = json.loads((root / ".shokunin/MANIFEST.json").read_text())
 state = rlm.get_harness_state(global_=True)
 checklist = (Path(__file__).parent / "global-triples.md").read_text()
 claimed = re.findall(r"^- \[verified\] `([a-z-]+)` ", checklist, re.MULTILINE)
-lanes = manifest["rounds"][0]["minted"]
+minted = [lane for entry in manifest["rounds"] if entry.get("type") == "mint"
+          for lane in entry.get("minted", [])]
+lanes = list(dict.fromkeys(minted))
 errors = []
 verified = []
-if len(lanes) != 4 or len(set(lanes)) != 4:
-    errors.append(f"mint roster expected four distinct lanes, got {lanes!r}")
-if sorted(claimed) != sorted(lanes):
-    errors.append(f"checklist lanes {claimed!r} differ from manifest mint {lanes!r}")
+if not lanes or len(minted) != len(lanes):
+    errors.append(f"mint ledger requires distinct lane IDs, got {minted!r}")
+if len(claimed) != len(set(claimed)) or sorted(claimed) != sorted(lanes):
+    errors.append(f"checklist lanes {claimed!r} differ from manifest mints {lanes!r}")
 
 # A minted lane is shonen until the ledger records its promotion. A roster row
 # must agree with that ledger; neither a row nor an executable spec alone can
@@ -57,8 +59,12 @@ for lane in lanes:
     spec = state.entries["subagent"][ids["subagent"]]
     memory = state.entries["memory"][ids["memory"]]
     skill = state.entries["skill"][ids["skill"]]
-    province = (root / ".shokunin" / lane / "PROVINCE.md").read_text()
-    scorecard = (root / ".shokunin" / lane / "SCORECARD.md").read_text()
+    try:
+        province = (root / ".shokunin" / lane / "PROVINCE.md").read_text()
+        scorecard = (root / ".shokunin" / lane / "SCORECARD.md").read_text()
+    except FileNotFoundError:
+        errors.append(f"{lane}: missing province or scorecard book")
+        continue
     owned = re.search(r"^Owns: (.+)$", province, re.MULTILINE)
     axes = re.search(r"^Owned axes: ([^.]+)\.", scorecard, re.MULTILINE)
     if not owned or not axes:

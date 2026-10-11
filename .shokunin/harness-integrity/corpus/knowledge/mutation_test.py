@@ -14,13 +14,15 @@ from unittest.mock import patch
 import rlm
 
 
-def audit_with(state, manifest=None):
+def audit_with(state, manifest=None, books=None):
     output = StringIO()
     read_text = Path.read_text
 
     def read_fixture(path, *args, **kwargs):
         if manifest is not None and path.name == "MANIFEST.json" and path.parent.name == ".shokunin":
             return json.dumps(manifest)
+        if books is not None and path.resolve() in books:
+            return books[path.resolve()]
         return read_text(path, *args, **kwargs)
 
     with patch.object(rlm, "get_harness_state", return_value=state):
@@ -107,6 +109,47 @@ del missing_roster["roster"][lane]
 no_row_code, no_row_output = audit_with(promoted_state, missing_roster)
 assert no_row_code == 1 and "FAIL: harness-integrity: promotion missing roster row" in no_row_output, no_row_output
 print("missing promoted roster copy: exit 1; promotion missing roster row")
+
+# A later type=mint entry must work without expanding a hardcoded roster. The
+# fifth lane's books and global triple exist only in these process-local copies.
+new_lane = "new-specialist"
+source_lane = "gate-evidence"
+expanded_manifest = deepcopy(manifest)
+expanded_manifest["rounds"].append({
+    "round": 0, "type": "mint", "minted": [new_lane], "promotions": [],
+    "notes": "synthetic fixture; no live mint", })
+expanded_state = deepcopy(live)
+for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):
+    source_id = f"primeagent-{source_lane}{suffix}"
+    fixture_id = f"primeagent-{new_lane}{suffix}"
+    expanded_state.entries[kind][fixture_id] = deepcopy(expanded_state.entries[kind][source_id])
+    expanded_state.entries[kind][fixture_id].id = fixture_id
+expanded_state.entries["subagent"][f"primeagent-{new_lane}"].metadata["rank"] = "shonen"
+expanded_state.entries["skill"][f"primeagent-{new_lane}-procedure"].arguments.update({
+    "province": new_lane, "scope": f".shokunin/{new_lane}"})
+books = {
+    (manifest_path.parent / new_lane / "PROVINCE.md").resolve():
+        (manifest_path.parent / source_lane / "PROVINCE.md").read_text(),
+    (manifest_path.parent / new_lane / "SCORECARD.md").resolve():
+        (manifest_path.parent / source_lane / "SCORECARD.md").read_text(),
+}
+checklist_path = Path(__file__).with_name("global-triples.md").resolve()
+books[checklist_path] = checklist_path.read_text() + f"\n- [verified] `{new_lane}` — synthetic fixture only.\n"
+expanded_code, expanded_output = audit_with(expanded_state, expanded_manifest, books)
+assert expanded_code == 0 and "verified triples: 5/5" in expanded_output and "FAIL:" not in expanded_output, expanded_output
+print("fifth minted lane copy: exit 0; verified triples: 5/5")
+
+duplicated_manifest = deepcopy(expanded_manifest)
+duplicated_manifest["rounds"].append({"round": 0, "type": "mint", "minted": [new_lane]})
+duplicate_code, duplicate_output = audit_with(expanded_state, duplicated_manifest, books)
+assert duplicate_code == 1 and "FAIL: mint ledger requires distinct lane IDs" in duplicate_output, duplicate_output
+print("duplicate mint ID copy: exit 1; duplicate rejected")
+
+unmatched_books = deepcopy(books)
+unmatched_books[checklist_path] = checklist_path.read_text()
+unmatched_code, unmatched_output = audit_with(expanded_state, expanded_manifest, unmatched_books)
+assert unmatched_code == 1 and "FAIL: checklist lanes" in unmatched_output, unmatched_output
+print("unmatched checklist copy: exit 1; missing fifth citation rejected")
 
 assert json.loads(manifest_path.read_text()) == manifest, "live manifest changed during fixture"
 fresh = rlm.get_harness_state(global_=True)
