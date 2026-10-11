@@ -5,7 +5,7 @@ Owned axes: depth, calibration. Scores are not assigned without a measured craft
 | axis | score | evidence / counting command | last change |
 |---|---|---|---|
 | depth | unmeasured | baseline `44a08fd0eeb22c7ed9766aae4675dd452eff232a`: `git ls-tree -r --name-only 44a08fd0eeb22c7ed9766aae4675dd452eff232a .shokunin/harness-integrity/corpus/knowledge | grep -c global-triples.md` → 0; round 1: `~/.prime/agent/kernel-venv/bin/python .shokunin/harness-integrity/corpus/knowledge/audit.py` → 4/4 at round-work HEAD (hash in report). A score 0–10 is not inferred from this count. | round 1 |
-| calibration | unmeasured | baseline at `git rev-parse HEAD`; no round yet | mint |
+| calibration | unmeasured | round-2 baseline live `audit.py` → 4/4; `mutation_test.py` → intact copy exit 0 (4/4), removed skill exit 1 (3/4), fresh live exit 0 (4/4); commands and measured work commit in `.shokunin/reports/round-2/harness-integrity.md`. No 0–10 score inferred. | round 2 |
 
-planned: depth — four cited global triples with live read-only callable resolution; next round re-run against fresh harness state before relying on the snapshot. Calibration remains unmeasured, with no independent non-author review.
+planned: calibration — test more drift modes only if demanded; current one-mutation result is narrow. Depth still requires fresh read-only audits before relying on a snapshot. Both axes await non-author verification.
 retired: none.

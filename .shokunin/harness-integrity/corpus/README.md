@@ -6,4 +6,7 @@
 | knowledge/global-triples.md | four-mint checklist, sources, live snapshot limits | 2026-10-11, round 1 |
 | knowledge/audit.py | reproducible read-only triple/ref verification | 2026-10-11, round 1 |
 
+| knowledge/mutation_test.py | process-local corruption and intact-copy controls for audit.py | 2026-10-11, round 2 |
+| lessons/round-2-calibration.md | measured detector results and limitations | 2026-10-11, round 2 |
+
 Append new lessons; corrections are additional entries, never destructive rewrites.
