@@ -12,5 +12,6 @@
 | lessons/round-4-calibration.md | synthetic authorized promotion and unauthorized rank controls | 2026-10-11, round 4 |
 | lessons/round-5-depth.md | ledger-wide minted lanes and synthetic fifth mint controls | 2026-10-11, round 5 |
 | lessons/round-6-depth.md | rank-correct roster pointer mutation controls | 2026-10-11, round 6 |
+| lessons/round-7-calibration.md | resolvable wrong-callable negative and checklist limit | 2026-10-11, round 7 |
 
 Append new lessons; corrections are additional entries, never destructive rewrites.

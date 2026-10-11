@@ -14,7 +14,10 @@ root = Path(__file__).resolve().parents[4]
 manifest = json.loads((root / ".shokunin/MANIFEST.json").read_text())
 state = rlm.get_harness_state(global_=True)
 checklist = (Path(__file__).parent / "global-triples.md").read_text()
-claimed = re.findall(r"^- \[verified\] `([a-z-]+)` ", checklist, re.MULTILINE)
+cited_references = re.findall(
+    r"^- \[verified\] `([a-z-]+)` .*?; Python `([a-zA-Z_][\w.]*)`;",
+    checklist, re.MULTILINE)
+claimed = [lane for lane, _ in cited_references]
 minted = [lane for entry in manifest["rounds"] if entry.get("type") == "mint"
           for lane in entry.get("minted", [])]
 lanes = list(dict.fromkeys(minted))
@@ -86,6 +89,7 @@ for lane in lanes:
     ref = skill.reference
     target = ref.get("import") or ref.get("python_import")
     function = ref.get("callable")
+    cited = dict(cited_references).get(lane)
     try:
         if ref.get("type") != "python" or not isinstance(target, str) or not isinstance(function, str):
             raise ValueError("expected Python import and callable reference")
@@ -93,6 +97,10 @@ for lane in lanes:
             raise ValueError("reference resolves but is not callable")
     except (ImportError, AttributeError, ValueError, TypeError) as exc:
         errors.append(f"{lane}: skill reference invalid: {exc}")
+        continue
+    actual = f"{target}.{function}"
+    if actual != cited:
+        errors.append(f"{lane}: skill reference disagrees with cited procedure: {actual} != {cited}")
         continue
     if (spec.metadata.get("province") != owned.group(1).removesuffix(".")
             or spec.metadata.get("axes") != expected_axes

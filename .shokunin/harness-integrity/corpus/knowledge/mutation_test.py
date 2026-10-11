@@ -60,6 +60,17 @@ ref_failure = "FAIL: harness-integrity: skill reference invalid: No module named
 assert ref_code == 1 and "verified triples: 3/4" in ref_output and ref_failure in ref_output, ref_output
 print(f"invalid import copy: exit 1; verified triples: 3/4; {ref_failure}")
 
+# A valid callable in the wrong province is not the cited executable
+# procedure, even though importlib can resolve it.
+wrong_callable = deepcopy(live)
+wrong_callable.entries["skill"][missing_id].reference = {
+    "type": "python", "import": "rlm", "callable": "find_models"}
+wrong_code, wrong_output = audit_with(wrong_callable)
+wrong_failure = "FAIL: harness-integrity: skill reference disagrees with cited procedure: rlm.find_models != rlm.get_harness_state"
+assert (wrong_code == 1 and "verified triples: 3/4" in wrong_output
+        and wrong_failure in wrong_output), (wrong_code, wrong_output)
+print("wrong callable copy: exit 1; verified triples: 3/4; cited procedure mismatch")
+
 
 # Model an authorized promotion in copies only: ledger, roster, and global spec
 # must all agree. The on-disk MANIFEST and live global harness remain untouched.
@@ -149,7 +160,8 @@ books = {
         (manifest_path.parent / source_lane / "SCORECARD.md").read_text(),
 }
 checklist_path = Path(__file__).with_name("global-triples.md").resolve()
-books[checklist_path] = checklist_path.read_text() + f"\n- [verified] `{new_lane}` — synthetic fixture only.\n"
+books[checklist_path] = (checklist_path.read_text()
+    + f"\n- [verified] `{new_lane}` — synthetic copied procedure; Python `goal.get`; fixture only.\n")
 expanded_code, expanded_output = audit_with(expanded_state, expanded_manifest, books)
 assert expanded_code == 0 and "verified triples: 5/5" in expanded_output and "FAIL:" not in expanded_output, expanded_output
 print("fifth minted lane copy: exit 0; verified triples: 5/5")
