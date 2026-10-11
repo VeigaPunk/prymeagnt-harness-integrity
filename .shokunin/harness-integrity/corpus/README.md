@@ -14,5 +14,6 @@
 | lessons/round-6-depth.md | rank-correct roster pointer mutation controls | 2026-10-11, round 6 |
 | lessons/round-7-calibration.md | resolvable wrong-callable negative and checklist limit | 2026-10-11, round 7 |
 | lessons/round-8-calibration.md | copied roster promotion-round mismatch and controls | 2026-10-11, round 8 |
+| lessons/round-9-depth.md | copied triple title/content identity mismatch and fifth-mint controls | 2026-10-11, round 9 |
 
 Append new lessons; corrections are additional entries, never destructive rewrites.

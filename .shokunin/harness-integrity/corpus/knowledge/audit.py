@@ -112,7 +112,23 @@ for lane in lanes:
     if actual != cited:
         errors.append(f"{lane}: skill reference disagrees with cited procedure: {actual} != {cited}")
         continue
-    if (spec.metadata.get("province") != owned.group(1).removesuffix(".")
+    domain = owned.group(1).removesuffix(".")
+    rank_word = "promoted" if expected_ranks[lane] == "shokunin" else "probationary"
+    identity = {
+        "subagent": (spec, f"{lane} — prime-agent specialist ({expected_ranks[lane]})",
+                     f"You are {lane}, a {rank_word} prime-agent shokunin. Province: {domain}. Owned axes: {', '.join(expected_axes)}."),
+        "memory": (memory, f"{lane} cited domain facts", f"Prime-agent specialization: {domain}."),
+        "skill": (skill, f"{lane} craft procedure",
+                  f"Executable REPL craft procedure for {lane} (reference resolves to `{cited}`;"),
+    }
+    identity_drift = False
+    for kind, (entry, title, opening) in identity.items():
+        if entry.title != title or not entry.content.startswith(opening):
+            errors.append(f"{lane}: {kind} title or content opening disagrees with books or cited procedure")
+            identity_drift = True
+    if identity_drift:
+        continue
+    if (spec.metadata.get("province") != domain
             or spec.metadata.get("axes") != expected_axes
             or spec.metadata.get("rank") != expected_ranks[lane]
             or skill.arguments.get("province") != lane

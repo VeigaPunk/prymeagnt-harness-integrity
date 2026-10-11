@@ -185,6 +185,9 @@ for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-pro
     fixture_id = f"primeagent-{new_lane}{suffix}"
     expanded_state.entries[kind][fixture_id] = deepcopy(expanded_state.entries[kind][source_id])
     expanded_state.entries[kind][fixture_id].id = fixture_id
+    entry = expanded_state.entries[kind][fixture_id]
+    entry.title = entry.title.replace(source_lane, new_lane)
+    entry.content = entry.content.replace(source_lane, new_lane)
 expanded_state.entries["subagent"][f"primeagent-{new_lane}"].metadata["rank"] = "shonen"
 expanded_state.entries["skill"][f"primeagent-{new_lane}-procedure"].arguments.update({
     "province": new_lane, "scope": f".shokunin/{new_lane}"})
@@ -212,6 +215,19 @@ unmatched_books[checklist_path] = checklist_path.read_text()
 unmatched_code, unmatched_output = audit_with(expanded_state, expanded_manifest, unmatched_books)
 assert unmatched_code == 1 and "FAIL: checklist lanes" in unmatched_output, unmatched_output
 print("unmatched checklist copy: exit 1; missing fifth citation rejected")
+
+# The cited global triple must remain this lane's own executable identity,
+# not a valid different lane copied under the same IDs and metadata.
+for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):
+    for field in ("title", "content"):
+        copied = deepcopy(live)
+        entry = copied.entries[kind][f"primeagent-{lane}{suffix}"]
+        donor = live.entries[kind][f"primeagent-rlm-dispatch{suffix}"]
+        setattr(entry, field, getattr(donor, field))
+        code, output = audit_with(copied)
+        failure = f"FAIL: {lane}: {kind} title or content opening disagrees with books or cited procedure"
+        assert code == 1 and "verified triples: 3/4" in output and failure in output, output
+        print(f"copied {kind} {field}: exit 1; verified triples: 3/4")
 
 assert json.loads(manifest_path.read_text()) == manifest, "live manifest changed during fixture"
 fresh = rlm.get_harness_state(global_=True)
