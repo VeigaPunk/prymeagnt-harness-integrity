@@ -84,9 +84,24 @@ promoted_manifest["rounds"].append({
     "minted": [],
     "notes": "synthetic fixture only; not a live promotion",
 })
-promoted_manifest["roster"][lane] = {"rank": "shokunin"}
+promoted_manifest["roster"][lane] = deepcopy(manifest["roster"][lane])
 promoted_state = deepcopy(base_state)
 promoted_state.entries["subagent"][f"primeagent-{lane}"].metadata["rank"] = "shokunin"
+
+# Each rank-correct roster pointer must identify the lane's actual books and
+# global subagent, not merely coexist with a valid promotion.
+for field, wrong in (
+    ("province", ".shokunin/rlm-dispatch/PROVINCE.md"),
+    ("axes", ["coverage", "calibration"]),
+    ("harness_spec", "global:primeagent-rlm-dispatch"),
+):
+    wrong_manifest = deepcopy(promoted_manifest)
+    wrong_manifest["roster"][lane][field] = wrong
+    wrong_code, wrong_output = audit_with(promoted_state, wrong_manifest)
+    assert (wrong_code == 1 and "verified triples: 3/4" in wrong_output
+            and f"FAIL: {lane}: roster {field} disagrees with books or global triple" in wrong_output), (field, wrong_code, wrong_output)
+    print(f"wrong roster {field} copy: exit 1; pointer rejected")
+
 promoted_code, promoted_output = audit_with(promoted_state, promoted_manifest)
 assert promoted_code == 0 and "verified triples: 4/4" in promoted_output, promoted_output
 print("authorized promoted copy: exit 0; verified triples: 4/4")

@@ -1,0 +1,5 @@
+# Round 6 — depth: rank-correct roster pointers
+
+Claim: a roster row with correct promoted rank but wrong `province`, `axes`, or `harness_spec` previously passed despite pointing away from the lane books or its global subagent. The isolated copied-state fixture initially failed its expected-rejection assertion on `province`: audit exit 0, verified 4/4; `axes` and `harness_spec` had the same uninspected field path before the change. Now all three independent mutations exit 1 and verify 3/4; the row must name `.shokunin/<lane>/PROVINCE.md`, scorecard-owned axes, and `global:primeagent-<lane>`. Promoted rank, triple metadata and import checks remain separate.
+
+Run from project root: `~/.prime/agent/kernel-venv/bin/python .shokunin/harness-integrity/corpus/knowledge/mutation_test.py` and `~/.prime/agent/kernel-venv/bin/python .shokunin/harness-integrity/corpus/knowledge/audit.py`. The copied fifth mint (no roster yet) and valid four-lane fixtures must pass, while prior rank negatives must fail. Neither live divergent roster nor global mutation was observed; depth applies to copied fixture only, calibration remains unchanged pending independent review.

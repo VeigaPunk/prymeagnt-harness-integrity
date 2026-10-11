@@ -71,6 +71,18 @@ for lane in lanes:
         errors.append(f"{lane}: missing province or axes declaration")
         continue
     expected_axes = [part.strip() for part in axes.group(1).split(",")]
+    row = manifest["roster"].get(lane)
+    roster_drift = False
+    if isinstance(row, dict):
+        pointers = {
+            "province": f".shokunin/{lane}/PROVINCE.md",
+            "axes": expected_axes,
+            "harness_spec": f"global:{ids['subagent']}",
+        }
+        for field, expected in pointers.items():
+            if row.get(field) != expected:
+                errors.append(f"{lane}: roster {field} disagrees with books or global triple")
+                roster_drift = True
     ref = skill.reference
     target = ref.get("import") or ref.get("python_import")
     function = ref.get("callable")
@@ -90,6 +102,8 @@ for lane in lanes:
             or skill.arguments.get("scope") != f".shokunin/{lane}"
             or not all(entry.scope == "global" and entry.content for entry in (spec, memory, skill))):
         errors.append(f"{lane}: metadata, scope, rank, or content drifts from books")
+        continue
+    if roster_drift:
         continue
     verified.append(lane)
 
