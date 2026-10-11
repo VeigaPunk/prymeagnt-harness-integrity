@@ -32,6 +32,7 @@ if len(claimed) != len(set(claimed)) or sorted(claimed) != sorted(lanes):
 # must agree with that ledger; neither a row nor an executable spec alone can
 # authorize a rank transition.
 expected_ranks = {lane: "shonen" for lane in lanes}
+promotion_rounds = {}
 for round_entry in manifest["rounds"]:
     for promotion in round_entry.get("promotions", []):
         lane = promotion.get("id")
@@ -42,11 +43,18 @@ for round_entry in manifest["rounds"]:
             errors.append(f"invalid rank promotion: {promotion!r}")
         else:
             expected_ranks[lane] = "shokunin"
+            promotion_round = round_entry.get("round")
+            if type(promotion_round) is not int or promotion_round < 1:
+                errors.append(f"{lane}: invalid ledger promotion round: {promotion_round!r}")
+            else:
+                promotion_rounds[lane] = promotion_round
 for lane, row in manifest["roster"].items():
     if lane not in expected_ranks:
         errors.append(f"unminted roster lane: {lane}")
     elif not isinstance(row, dict) or row.get("rank") != expected_ranks[lane] or expected_ranks[lane] == "shonen":
         errors.append(f"{lane}: roster rank disagrees with promotion ledger: {row!r}")
+    elif type(row.get("promotion_round")) is not int or row["promotion_round"] != promotion_rounds.get(lane):
+        errors.append(f"{lane}: roster promotion_round disagrees with promotion ledger: {row.get('promotion_round')!r}")
 for lane, rank in expected_ranks.items():
     if rank == "shokunin" and lane not in manifest["roster"]:
         errors.append(f"{lane}: promotion missing roster row")
@@ -75,7 +83,9 @@ for lane in lanes:
         continue
     expected_axes = [part.strip() for part in axes.group(1).split(",")]
     row = manifest["roster"].get(lane)
-    roster_drift = False
+    roster_drift = (isinstance(row, dict) and expected_ranks[lane] == "shokunin"
+                    and (type(row.get("promotion_round")) is not int
+                         or row["promotion_round"] != promotion_rounds.get(lane)))
     if isinstance(row, dict):
         pointers = {
             "province": f".shokunin/{lane}/PROVINCE.md",

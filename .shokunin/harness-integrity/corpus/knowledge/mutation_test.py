@@ -96,6 +96,7 @@ promoted_manifest["rounds"].append({
     "notes": "synthetic fixture only; not a live promotion",
 })
 promoted_manifest["roster"][lane] = deepcopy(manifest["roster"][lane])
+promoted_manifest["roster"][lane]["promotion_round"] = 4
 promoted_state = deepcopy(base_state)
 promoted_state.entries["subagent"][f"primeagent-{lane}"].metadata["rank"] = "shokunin"
 
@@ -115,7 +116,41 @@ for field, wrong in (
 
 promoted_code, promoted_output = audit_with(promoted_state, promoted_manifest)
 assert promoted_code == 0 and "verified triples: 4/4" in promoted_output, promoted_output
-print("authorized promoted copy: exit 0; verified triples: 4/4")
+print("authorized promoted copy (round 4): exit 0; verified triples: 4/4")
+
+# Both recorded real promotion rows are valid; a copied round number or
+# missing/malformed round is not evidence of when promotion happened.
+for promoted_lane in ("harness-integrity", "rlm-dispatch"):
+    recorded = next(entry["round"] for entry in manifest["rounds"]
+                    if any(p.get("id") == promoted_lane for p in entry.get("promotions", [])))
+    assert recorded == 4 and manifest["roster"][promoted_lane]["promotion_round"] == recorded
+    copied = deepcopy(manifest)
+    copied["roster"][promoted_lane]["promotion_round"] = 3
+    code, output = audit_with(live, copied)
+    assert (code == 1 and "verified triples: 3/4" in output
+            and f"FAIL: {promoted_lane}: roster promotion_round disagrees with promotion ledger: 3" in output), output
+    print(f"{promoted_lane} copied round 3: exit 1; verified triples: 3/4")
+
+for value in (None, "4", True, 0):
+    copied = deepcopy(promoted_manifest)
+    if value is None:
+        del copied["roster"][lane]["promotion_round"]
+    else:
+        copied["roster"][lane]["promotion_round"] = value
+    code, output = audit_with(promoted_state, copied)
+    assert code == 1 and "verified triples: 3/4" in output and "roster promotion_round disagrees" in output, output
+    print(f"missing/malformed roster round {value!r}: exit 1; verified triples: 3/4")
+
+for invalid_round in (None, "4", True, 0):
+    copied = deepcopy(promoted_manifest)
+    promoting_entry = copied["rounds"][-1]
+    if invalid_round is None:
+        del promoting_entry["round"]
+    else:
+        promoting_entry["round"] = invalid_round
+    code, output = audit_with(promoted_state, copied)
+    assert code == 1 and "invalid ledger promotion round" in output, output
+    print(f"missing/malformed ledger round {invalid_round!r}: exit 1")
 
 unapproved_manifest = deepcopy(base_manifest)
 unapproved_manifest["roster"][lane] = {"rank": "shokunin"}

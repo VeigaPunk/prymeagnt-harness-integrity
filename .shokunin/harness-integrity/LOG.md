@@ -68,3 +68,9 @@
 
 ## R7/R6 independent review and L1 judgment
 - Named non-author callable-and-parent-review at a30472f independently ran previous audit against copied valid wrong `rlm.find_models` callable while independent citation remained `rlm.get_harness_state`: old falsely verifies 4/4, new rejects 3/4. Native mutation suite and live 4/4, synthetic fifth mint 5/5 retained. L1 admits R7 calibration improved/depth unchanged, not semantic proof or coordinated reference+citation corruption.
+
+## Round 8 — 2026-10-11 — calibration
+- Claim: copied roster `promotion_round=3` for harness-integrity falsely passed 4/4, although the promotion ledger records round 4. Match each promoted lane's roster `promotion_round` to the valid integer round of its recorded ledger transition. Reproduce before-state with a copied manifest and `audit_with` from `mutation_test.py`; exit 0, 4/4. The new controls reject copied wrong rounds for harness-integrity and rlm-dispatch, each 3/4, and malformed/missing roster or ledger round fields; actual round-4 copied promotion, intact live four, and fifth synthetic mint remain positive.
+- Work: `corpus/knowledge/audit.py`, `mutation_test.py`, `lessons/round-8-calibration.md`, index, scorecard and this log. Use the project's kernel interpreter to run mutation_test.py and audit.py. Work commit cited in round-8 report. MANIFEST, global harness, source files and other lanes untouched; no push.
+- Verdict: calibration **improved** for copied promotion-round mismatch detection; depth **unchanged**. L1 judges admission; no semantic promotion validation or observed live drift. Falsify on false acceptance of wrong round or false rejection of valid round 4/fifth mint.
+- Proposed, not applied, global procedure/memory update for L1: test roster promotion_round against ledger round with both promoted-lane mismatch negatives and valid round-4/fifth-mint positives. The prior copied false accept is a fixture result, not a live incident.
