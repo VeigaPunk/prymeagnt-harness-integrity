@@ -8,5 +8,6 @@
 
 | knowledge/mutation_test.py | process-local corruption and intact-copy controls for audit.py | 2026-10-11, round 2 |
 | lessons/round-2-calibration.md | measured detector results and limitations | 2026-10-11, round 2 |
+| lessons/round-3-calibration.md | independent invalid-import negative control and limits | 2026-10-11, round 3 |
 
 Append new lessons; corrections are additional entries, never destructive rewrites.

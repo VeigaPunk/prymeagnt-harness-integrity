@@ -40,7 +40,14 @@ print("intact copy: exit 0; verified triples: 4/4")
 mutant_code, mutant_output = audit_with(corrupted)
 expected = f"FAIL: harness-integrity: missing skill:{missing_id}"
 assert mutant_code == 1 and "verified triples: 3/4" in mutant_output and expected in mutant_output, mutant_output
-print(f"corrupted copy: exit 1; verified triples: 3/4; {expected}")
+print(f"missing skill copy: exit 1; verified triples: 3/4; {expected}")
+
+invalid_ref = deepcopy(live)
+invalid_ref.entries["skill"][missing_id].reference["import"] = "shokunin_missing_reference_probe"
+ref_code, ref_output = audit_with(invalid_ref)
+ref_failure = "FAIL: harness-integrity: skill reference invalid: No module named 'shokunin_missing_reference_probe'"
+assert ref_code == 1 and "verified triples: 3/4" in ref_output and ref_failure in ref_output, ref_output
+print(f"invalid import copy: exit 1; verified triples: 3/4; {ref_failure}")
 
 fresh = rlm.get_harness_state(global_=True)
 assert missing_id in fresh.entries["skill"], "live state changed during fixture"
