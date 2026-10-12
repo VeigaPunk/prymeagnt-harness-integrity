@@ -1,0 +1,26 @@
+# Global triple audit — round 1 (2026-10-11)
+
+Sources: `docs/shokunin-workflow.md:68-97` requires subagent, memory, and skill per mint; `skills/shokunin/SKILL.md:78-103` describes the global store and `skills/shokunin/SKILL.md:311-315` makes the manifest authoritative for roster/rank, harness authoritative for executable state. `.shokunin/MANIFEST.json` currently contains four minted lanes in its first `type=mint` entry; the audit derives lanes from every `type=mint` entry, regardless of position. The runtime's `rlm/harness.py:218-233` checks the *shape* of Python references; this audit additionally imports and resolves each referenced callable.
+
+Read-only procedure from project root (do not dump secrets or mutate the global store):
+
+```sh
+~/.prime/agent/kernel-venv/bin/python .shokunin/harness-integrity/corpus/knowledge/audit.py
+```
+
+The executable audit rejects a non-positive or non-integer version on each expected triple (the runtime creates entries at v1 and increments on updates, though its JSON loader can preserve a negative integer from a corrupted payload). It checks distinct lane IDs across every `MANIFEST.json` `rounds[]` `type=mint` entry and rejects duplicate mint IDs or a nonmatching/duplicate checklist citation; it checks each lane's `subagent`/`memory`/`skill` ID triple, global scope, nonempty content, subagent rank/province/axes against its repo-local `PROVINCE.md:3` and `SCORECARD.md:3`, skill scope/axes/province, promoted roster province/axes/harness_spec pointers against the lane books and triple ID, and that the Python `import` and `callable` resolve in the prime-agent kernel runtime **and match the callable named in this checklist**. It also compares the triple's lane-specific titles and opening identity claims (subagent rank/province/axes, memory province, skill lane/cited callable) against independently cited books and procedure; this rejects a different lane's copied instructions with otherwise correct metadata. It does **not** inspect every content sentence or call the skills, test model admission, certify semantic quality of content, or prove no future drift. Every run is a fresh snapshot of a mutable global store, not a version-pinned harness attestation.
+
+## Checklist (live snapshot; re-run before reliance)
+
+- [verified] `harness-integrity` — `primeagent-harness-integrity` (subagent), `primeagent-harness-integrity-knowledge` (memory), `primeagent-harness-integrity-procedure` (skill); Python `rlm.get_harness_state`; `.shokunin/harness-integrity/PROVINCE.md:3`, `SCORECARD.md:3`.
+- [verified] `rlm-dispatch` — `primeagent-rlm-dispatch` (subagent), `primeagent-rlm-dispatch-knowledge` (memory), `primeagent-rlm-dispatch-procedure` (skill); Python `rlm.find_models`; `.shokunin/rlm-dispatch/PROVINCE.md:3`, `SCORECARD.md:3`.
+- [verified] `gate-evidence` — `primeagent-gate-evidence` (subagent), `primeagent-gate-evidence-knowledge` (memory), `primeagent-gate-evidence-procedure` (skill); Python `goal.get`; `.shokunin/gate-evidence/PROVINCE.md:3`, `SCORECARD.md:3`.
+- [verified] `skill-discovery` — `primeagent-skill-discovery` (subagent), `primeagent-skill-discovery-knowledge` (memory), `primeagent-skill-discovery-procedure` (skill); Python `rlm.get_harness_state`; `.shokunin/skill-discovery/PROVINCE.md:3`, `SCORECARD.md:3`.
+
+Round-5 fixture: `mutation_test.py` adds a copied fifth mint entry, copied global triple, synthetic province/scorecard and checklist citation without changing live authorities. It expects 5/5 success, then rejects a duplicate mint ID and an unmatched checklist. Existing four-lane rank/ID/reference controls remain. The fifth lane is synthetic, **not** a fifth verified live lane; a real mint must add a separately controlled fixture or live cited books and global entries before claiming verification.
+
+Failure decision: if the command exits nonzero, do not call the affected triple verified. Report the specific `FAIL:` line to L1; only L1 may change global harness or `MANIFEST.json`. The rank check uses mint chronology (shonen), validated `rounds[].promotions` transitions, and roster rank (required on promotion); a changed roster without a valid ledger promotion fails. A future promotion must update the roster and executable harness spec together before this audit can verify it.
+
+
+## Round-13 correction (2026-10-12)
+The initial R13 report overstated a literal one-axis/admission phrase test as contract integrity. That claim is superseded: those exact-phrase checks were removed because they rejected legitimate paraphrases and could be satisfied inertly. Current audit only checks that the spec contains its lane-specific report address and contains both model selectors declared in metadata; metadata must be exactly the allowed pair `openai-codex/gpt-6-luna` and `openai-codex/gpt-6-sol`. This catches the tested donor-body substitution and selector drift, not semantic round-contract fidelity, operative directives, model routing/admission, or actual dispatch behavior. Mutation tests verify a paraphrased one-axis/admission spec still passes, wrong selector text/metadata fail, and donor remainder fails on the report address. Live snapshot is 4/4; copied fixtures are not live evidence.
