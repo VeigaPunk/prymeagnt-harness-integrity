@@ -16,4 +16,6 @@
 | lessons/round-8-calibration.md | copied roster promotion-round mismatch and controls | 2026-10-11, round 8 |
 | lessons/round-9-depth.md | copied triple title/content identity mismatch and fifth-mint controls | 2026-10-11, round 9 |
 
+| lessons/round-15-depth.md | private persisted-JSON loader version mutation and narrow positive-integer audit | 2026-10-12, round 15 |
+
 Append new lessons; corrections are additional entries, never destructive rewrites.

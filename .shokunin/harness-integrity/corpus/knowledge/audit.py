@@ -123,6 +123,9 @@ for lane in lanes:
     }
     identity_drift = False
     for kind, (entry, title, opening) in identity.items():
+        if type(entry.version) is not int or entry.version < 1:
+            errors.append(f"{lane}: {kind} version must be a positive integer: {entry.version!r}")
+            identity_drift = True
         if entry.title != title or not entry.content.startswith(opening):
             errors.append(f"{lane}: {kind} title or content opening disagrees with books or cited procedure")
             identity_drift = True

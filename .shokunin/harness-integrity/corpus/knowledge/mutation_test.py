@@ -9,6 +9,7 @@ from io import StringIO
 import json
 from pathlib import Path
 from runpy import run_path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 import rlm
@@ -47,6 +48,13 @@ del corrupted.entries["skill"][missing_id]
 control_code, control_output = audit_with(intact)
 assert control_code == 0 and "verified triples: 4/4" in control_output, control_output
 print("intact copy: exit 0; verified triples: 4/4")
+expected_ids = {kind: [f"primeagent-{lane}{suffix}" for lane in (
+    "harness-integrity", "rlm-dispatch", "gate-evidence", "skill-discovery")]
+    for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure"))}
+assert all(type(live.entries[kind][entry_id].version) is int
+           and live.entries[kind][entry_id].version >= 1
+           for kind, ids in expected_ids.items() for entry_id in ids)
+print("live expected triple versions: 12/12 positive integers")
 
 mutant_code, mutant_output = audit_with(corrupted)
 expected = f"FAIL: harness-integrity: missing skill:{missing_id}"
@@ -59,6 +67,29 @@ ref_code, ref_output = audit_with(invalid_ref)
 ref_failure = "FAIL: harness-integrity: skill reference invalid: No module named 'shokunin_missing_reference_probe'"
 assert ref_code == 1 and "verified triples: 3/4" in ref_output and ref_failure in ref_output, ref_output
 print(f"invalid import copy: exit 1; verified triples: 3/4; {ref_failure}")
+
+# Exercise the native loader against a private copy of persisted global JSON.
+# The loader preserves negative integer versions; this is corruption of a
+# copied payload, not a claim that normal create/update APIs produce it.
+for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):
+    entry_id = f"primeagent-harness-integrity{suffix}"
+    with TemporaryDirectory(prefix="harness-integrity-version-") as private_dir:
+        private_path = Path(private_dir) / live.file_path.name
+        payload = json.loads(live.file_path.read_text())
+        private_path.write_text(json.dumps(payload))
+        intact_loaded = rlm.get_harness_state(state_dir=private_dir, global_=True)
+        assert intact_loaded.file_path == private_path and type(intact_loaded.entries[kind][entry_id].version) is int
+        assert intact_loaded.entries[kind][entry_id].version == live.entries[kind][entry_id].version
+        intact_code, intact_output = audit_with(intact_loaded)
+        assert intact_code == 0 and "verified triples: 4/4" in intact_output, intact_output
+        payload["entries"][kind][entry_id]["version"] = -1
+        private_path.write_text(json.dumps(payload))
+        loaded = intact_loaded.load()
+        assert loaded.file_path == private_path and loaded.entries[kind][entry_id].version == -1
+        code, output = audit_with(loaded)
+        failure = f"FAIL: harness-integrity: {kind} version must be a positive integer: -1"
+        assert code == 1 and "verified triples: 3/4" in output and failure in output, output
+        print(f"private persisted {kind} v-1: loader retains -1; audit exit 1; verified triples: 3/4")
 
 # A valid callable in the wrong province is not the cited executable
 # procedure, even though importlib can resolve it.

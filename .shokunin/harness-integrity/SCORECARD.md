@@ -35,3 +35,5 @@ Supersedes stale planned text above that leaves R3 controls awaiting verificatio
 
 ## Round 13 correction — superseding verdict scope
 The initial R13 claim that the audit structurally checked one-axis and L1 admission clauses is superseded. Literal phrase tests were removed after review found false rejection of paraphrases and inert-appendix false acceptance. Revised checks cover only lane-specific report-address presence and selector presence matching an exact allowed metadata pair. Donor remainder rejected; legitimate paraphrase accepted; wrong selector content and metadata rejected; prior controls and live 4/4 retained. Depth is improved narrowly for those tested address/selector-presence mutations; calibration unchanged. This does not validate round-contract semantics, operative content, or runtime admission. No scalar score inferred.
+
+Round 15: structural depth version guard on expected triples. Private persisted JSON mutations (subagent/memory/skill each v-1) rejected at 3/4; intact/fresh live 4/4; prior mutation suite passes. See `.shokunin/reports/round-15/harness-integrity.md`. No scalar score inferred; calibration unchanged.
