@@ -53,3 +53,8 @@
 
 ## R6 independent review and L1 judgment
 - Named non-author preflight-and-noaxis-review at a30472f tested daemon path/env preflight: fake distinct paths pass; same socket, overlapping store, inherited PRIME_AGENT_INTERNAL_* each refuse. No daemon/session/reload launched; L1 records R6 freshness/operability unchanged and SHONEN end-to-end unchecked; preflight is not authorization to launch.
+
+## Round 7 — 2026-10-11 (operability axis)
+- Audited fake-path cases in `corpus/probes/daemon-isolation-preflight.sh`. Symlinked store aliases were already canonicalized by `realpath -m` and refused; a concrete false pass remained: private store `/` with an otherwise distinct socket and live store passed because slash-root containment was not represented by the trailing-slash overlap checks.
+- Added a minimal guard refusing `/` as either private or live store. Before fixture: isolated invocation with private store `/`, private socket in scratch, ordinary live store/socket printed `PATH_PREFLIGHT_PASS` and exited 0. After fixture: same invocation prints `REFUSE filesystem root as agent store`, exits 1. Positive distinct fake paths still exit 0; nested-socket and inherited-state refusal remain checked. All tests used fake temporary paths / `env -i`; no daemon, session, or reload launched.
+- Operability proposal: improved (preflight now rejects an observed isolation false pass). Freshness unchanged; this is not proof of private daemon isolation and does not advance freshness or SHONEN box 2. Existing R4 private install and R5 fresh inventory remain untouched.

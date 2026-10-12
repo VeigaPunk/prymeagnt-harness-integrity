@@ -17,6 +17,9 @@ while IFS= read -r entry; do
   esac
 done < <(env)
 
+# Root cannot be an isolated store: it contains every other path, and the
+# trailing-slash overlap checks below do not model that special case.
+[ "$private_store" != / ] && [ "$live_store" != / ] || { echo "REFUSE filesystem root as agent store" >&2; exit 1; }
 # Store roots may not equal or contain one another. Socket must be distinct
 # from the live socket and must not live inside either store root.
 case "$private_store/" in "$live_store/"|"$live_store"/*/) echo "REFUSE overlapping private/live store paths" >&2; exit 1;; esac
