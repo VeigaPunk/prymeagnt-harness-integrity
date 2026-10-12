@@ -216,6 +216,37 @@ unmatched_code, unmatched_output = audit_with(expanded_state, expanded_manifest,
 assert unmatched_code == 1 and "FAIL: checklist lanes" in unmatched_output, unmatched_output
 print("unmatched checklist copy: exit 1; missing fifth citation rejected")
 
+# The canonical schema uses an unconstrained <id>; this synthetic copied
+# fifth mint demonstrates a digit-bearing ID without claiming a real mint.
+digit_lane = "specialist-2"
+digit_manifest = deepcopy(manifest)
+digit_manifest["rounds"].append({
+    "round": 0, "type": "mint", "minted": [digit_lane], "promotions": [],
+    "notes": "synthetic fixture; no live mint", })
+digit_state = deepcopy(live)
+for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):
+    source_id = f"primeagent-{source_lane}{suffix}"
+    fixture_id = f"primeagent-{digit_lane}{suffix}"
+    digit_state.entries[kind][fixture_id] = deepcopy(digit_state.entries[kind][source_id])
+    digit_state.entries[kind][fixture_id].id = fixture_id
+    entry = digit_state.entries[kind][fixture_id]
+    entry.title = entry.title.replace(source_lane, digit_lane)
+    entry.content = entry.content.replace(source_lane, digit_lane)
+digit_state.entries["subagent"][f"primeagent-{digit_lane}"].metadata["rank"] = "shonen"
+digit_state.entries["skill"][f"primeagent-{digit_lane}-procedure"].arguments.update({
+    "province": digit_lane, "scope": f".shokunin/{digit_lane}"})
+digit_books = {
+    (manifest_path.parent / digit_lane / "PROVINCE.md").resolve():
+        (manifest_path.parent / source_lane / "PROVINCE.md").read_text(),
+    (manifest_path.parent / digit_lane / "SCORECARD.md").resolve():
+        (manifest_path.parent / source_lane / "SCORECARD.md").read_text(),
+    checklist_path: (checklist_path.read_text()
+        + f"\n- [verified] `{digit_lane}` — synthetic copied procedure; Python `goal.get`; fixture only.\n"),
+}
+digit_code, digit_output = audit_with(digit_state, digit_manifest, digit_books)
+assert digit_code == 0 and "verified triples: 5/5" in digit_output and "FAIL:" not in digit_output, digit_output
+print("digit-bearing fifth mint: exit 0; verified triples: 5/5; digit ID accepted")
+
 # The cited global triple must remain this lane's own executable identity,
 # not a valid different lane copied under the same IDs and metadata.
 for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):
