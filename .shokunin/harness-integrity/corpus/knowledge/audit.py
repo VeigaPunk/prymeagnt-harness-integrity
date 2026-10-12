@@ -15,7 +15,7 @@ manifest = json.loads((root / ".shokunin/MANIFEST.json").read_text())
 state = rlm.get_harness_state(global_=True)
 checklist = (Path(__file__).parent / "global-triples.md").read_text()
 cited_references = re.findall(
-    r"^- \[verified\] `([a-z][a-z0-9-]*)` .*?; Python `([a-zA-Z_][\w.]*)`;",
+    r"^- \[verified\] `([a-z][a-z0-9_-]*)` .*?; Python `([a-zA-Z_][\w.]*)`;",
     checklist, re.MULTILINE)
 claimed = [lane for lane, _ in cited_references]
 minted = [lane for entry in manifest["rounds"] if entry.get("type") == "mint"

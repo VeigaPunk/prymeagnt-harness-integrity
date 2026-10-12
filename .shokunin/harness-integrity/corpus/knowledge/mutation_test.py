@@ -216,9 +216,10 @@ unmatched_code, unmatched_output = audit_with(expanded_state, expanded_manifest,
 assert unmatched_code == 1 and "FAIL: checklist lanes" in unmatched_output, unmatched_output
 print("unmatched checklist copy: exit 1; missing fifth citation rejected")
 
-# The canonical schema uses an unconstrained <id>; this synthetic copied
-# fifth mint demonstrates a digit-bearing ID without claiming a real mint.
-digit_lane = "specialist-2"
+# Runtime accepts any nonempty ID string and the workflow gives no narrower
+# grammar. This fixture exercises underscore specifically; it is synthetic,
+# and does not establish that every such ID works across all filesystem uses.
+digit_lane = "specialist_2"
 digit_manifest = deepcopy(manifest)
 digit_manifest["rounds"].append({
     "round": 0, "type": "mint", "minted": [digit_lane], "promotions": [],
