@@ -40,3 +40,11 @@ The initial R13 claim that the audit structurally checked one-axis and L1 admiss
 ## Round 14 — depth and calibration move (2026-10-12)
 - Baseline: copied subagent payload ID mutation with unchanged dictionary key exited 0 / 4/4. After the change, separate subagent, memory, and skill payload-ID mismatches each exit 1 / 3/4; intact copy and fresh live audit exit 0 / 4/4. Native full mutation suite passes and retains prior controls, including fifth synthetic mint 5/5 and promotion fixtures.
 - Verdict: depth **improved** narrowly for payload-ID detection; calibration **improved** narrowly for rejecting this tested synthetic false pass while retaining intact positive. No numeric score inferred. No live drift, semantic correctness, or runtime attestation claimed. Evidence: `.shokunin/reports/round-14/harness-integrity.md`.
+
+
+
+## Review correction — supersedes the R14 proposal and verdict above
+
+Independent review found that the runtime loader in `harness.py` (lines 550–552) overwrites each loaded payload `id` from its dictionary key. Therefore the tested key/payload mismatch is a private copied-state invariant, not a persisted mismatch that ordinarily reaches this audit through the runtime loader. The earlier suggestion that this establishes live persisted triple-integrity improvement was not supported.
+
+Corrected axis verdict: **depth unchanged/unprovable for live persisted triple integrity**; **calibration unchanged**. There is **no axis advance** for R14. The private copied-state test still demonstrates that this audit rejects such a fabricated in-memory mismatch, but it is not evidence of a production-reachable corruption path or improved live-state coverage. The implementation and original test evidence are retained; this appended correction supersedes their two-axis-improvement interpretation. The original report also incorrectly stated `git diff --check` passed: review found trailing spaces on the two metadata lines. They have now been removed in this correction commit.

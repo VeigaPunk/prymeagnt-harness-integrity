@@ -111,3 +111,11 @@ Supersedes the initial R13 depth-improved wording wherever it implies semantic o
 - Work: `corpus/knowledge/audit.py` compares each expected payload ID to its key-derived ID; `mutation_test.py` adds three isolated negative fixtures. `corpus/lessons/round-14-identity.md` and corpus index record evidence and limits. Live `audit.py` exits 0 at 4/4; native mutation suite exits 0 with all assertions.
 - Verdict: depth **improved** narrowly for expected triple payload-ID mismatch detection; calibration **improved** narrowly because this synthetic copied-state false pass is rejected with intact positive retained. This is not semantic/runtime attestation or observed live drift. No global harness, MANIFEST, runtime source, or other lane changed; no push/provider/daemon action. See round-14 report for exact commands and commit.
 - Next: L1 reviews this bounded copied-state result; no self-promotion.
+
+
+
+## Review correction — supersedes the R14 proposal and verdict above
+
+Independent review found that the runtime loader in `harness.py` (lines 550–552) overwrites each loaded payload `id` from its dictionary key. Therefore the tested key/payload mismatch is a private copied-state invariant, not a persisted mismatch that ordinarily reaches this audit through the runtime loader. The earlier suggestion that this establishes live persisted triple-integrity improvement was not supported.
+
+Corrected axis verdict: **depth unchanged/unprovable for live persisted triple integrity**; **calibration unchanged**. There is **no axis advance** for R14. The private copied-state test still demonstrates that this audit rejects such a fabricated in-memory mismatch, but it is not evidence of a production-reachable corruption path or improved live-state coverage. The implementation and original test evidence are retained; this appended correction supersedes their two-axis-improvement interpretation. The original report also incorrectly stated `git diff --check` passed: review found trailing spaces on the two metadata lines. They have now been removed in this correction commit.

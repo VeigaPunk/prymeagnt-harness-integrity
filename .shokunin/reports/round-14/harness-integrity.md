@@ -1,7 +1,7 @@
 # Round 14 — harness-integrity — payload identity
 
-**Base:** `1f888d5c5fb69204cc8c48d5c6283012a3598eb1`  
-**Work commit:** `3aab2803a4cf8a015a91a78d522150915b6fd775`  
+**Base:** `1f888d5c5fb69204cc8c48d5c6283012a3598eb1`
+**Work commit:** `3aab2803a4cf8a015a91a78d522150915b6fd775`
 **Scope:** `.shokunin/harness-integrity/**` and this report only.
 
 ## Finding and change
@@ -37,3 +37,10 @@ Changed only:
 - `.shokunin/reports/round-14/harness-integrity.md` (this report; committed last)
 
 No MANIFEST, global harness, runtime source, or other lane was changed. No push, provider, or daemon action.
+
+
+## Review correction — supersedes the R14 proposal and verdict above
+
+Independent review found that the runtime loader in `harness.py` (lines 550–552) overwrites each loaded payload `id` from its dictionary key. Therefore the tested key/payload mismatch is a private copied-state invariant, not a persisted mismatch that ordinarily reaches this audit through the runtime loader. The earlier suggestion that this establishes live persisted triple-integrity improvement was not supported.
+
+Corrected axis verdict: **depth unchanged/unprovable for live persisted triple integrity**; **calibration unchanged**. There is **no axis advance** for R14. The private copied-state test still demonstrates that this audit rejects such a fabricated in-memory mismatch, but it is not evidence of a production-reachable corruption path or improved live-state coverage. The implementation and original test evidence are retained; this appended correction supersedes their two-axis-improvement interpretation. The original report also incorrectly stated `git diff --check` passed: review found trailing spaces on the two metadata lines. They have now been removed in this correction commit.
