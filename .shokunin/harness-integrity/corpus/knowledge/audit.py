@@ -6,6 +6,7 @@ Run from the project root with the prime-agent kernel venv:
 import importlib
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 
 import rlm
@@ -125,6 +126,14 @@ for lane in lanes:
     for kind, (entry, title, opening) in identity.items():
         if type(entry.version) is not int or entry.version < 1:
             errors.append(f"{lane}: {kind} version must be a positive integer: {entry.version!r}")
+            identity_drift = True
+        try:
+            created = datetime.fromisoformat(entry.created_at)
+            updated = datetime.fromisoformat(entry.updated_at)
+            if created.utcoffset() is None or updated.utcoffset() is None or created > updated:
+                raise ValueError("timestamps must be timezone-aware and ordered")
+        except (TypeError, ValueError):
+            errors.append(f"{lane}: {kind} timestamps must be timezone-aware ISO datetimes with created_at <= updated_at")
             identity_drift = True
         if entry.title != title or not entry.content.startswith(opening):
             errors.append(f"{lane}: {kind} title or content opening disagrees with books or cited procedure")

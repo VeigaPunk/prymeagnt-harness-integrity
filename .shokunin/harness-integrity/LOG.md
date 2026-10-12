@@ -110,3 +110,10 @@ Supersedes the initial R13 depth-improved wording wherever it implies semantic o
 - Before: private copied global JSON `version: -1` on each expected harness-integrity triple survives `HarnessState.load()`; prior audit had no version guard and accepted 4/4. Prior R14 normalization premise was incorrect. This is synthetic persisted corruption, not a normal API-created value.
 - Change: expected minted subagent/memory/skill entries require `type(version) is int` and `version >= 1`; no version history or semantics inferred. Native loader-path private fixtures reject each negative version at 3/4; intact private and fresh live snapshots pass 4/4, prior mutation suite passes; 12/12 live expected versions positive.
 - Verdict: depth **improved** narrowly for persisted version corruption detection; calibration **unchanged**. Live global harness and manifest untouched; no push or promotion. Commit and command receipts in round-15 report.
+
+
+## Round 16 — 2026-10-12 — expected triple timestamps
+- Before: private persisted JSON timestamp mutations (`created_at: not-a-date`, naive `created_at`, and `updated_at` preceding creation) survived the installed loader and the prior audit accepted 4/4. These are synthetic copied-state mutations, not observed live corruption.
+- Change: expected minted subagent/memory/skill entries now require both timestamps to parse as timezone-aware ISO datetimes, with `created_at <= updated_at`. No provenance or full history inferred.
+- Native verification: actual persisted private copy, explicit cached `.load()`, intact private 4/4, five timestamp mutants each 3/4, existing version mutants each 3/4, prior positive and negative suite, and fresh live 4/4. Standalone live audit 4/4; diff check clean.
+- Verdict: depth **improved** narrowly for these structural timestamp corruptions; calibration **unchanged**. No global/MANIFEST/provider/daemon mutation. See round-16 report for command and commit receipt.

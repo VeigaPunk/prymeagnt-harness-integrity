@@ -55,6 +55,9 @@ assert all(type(live.entries[kind][entry_id].version) is int
            and live.entries[kind][entry_id].version >= 1
            for kind, ids in expected_ids.items() for entry_id in ids)
 print("live expected triple versions: 12/12 positive integers")
+assert all(live.entries[kind][entry_id].created_at and live.entries[kind][entry_id].updated_at
+           for kind, ids in expected_ids.items() for entry_id in ids)
+print("live expected triple timestamps: 12/12 present; intact audit validates format, awareness, and order")
 
 mutant_code, mutant_output = audit_with(corrupted)
 expected = f"FAIL: harness-integrity: missing skill:{missing_id}"
@@ -90,6 +93,35 @@ for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-pro
         failure = f"FAIL: harness-integrity: {kind} version must be a positive integer: -1"
         assert code == 1 and "verified triples: 3/4" in output and failure in output, output
         print(f"private persisted {kind} v-1: loader retains -1; audit exit 1; verified triples: 3/4")
+
+# Exercise timestamp validation through the actual persisted JSON loader.
+# Each mutation is private copied data; load() explicitly refreshes cached state.
+for kind, field, value in (
+    ("memory", "created_at", "not-a-date"),
+    ("memory", "created_at", "2026-10-11T22:13:15"),
+    ("memory", "updated_at", "2020-01-01T00:00:00+00:00"),
+    ("subagent", "created_at", "not-a-date"),
+    ("skill", "updated_at", "not-a-date"),
+):
+    entry_id = f"primeagent-harness-integrity" + {
+        "subagent": "", "memory": "-knowledge", "skill": "-procedure"}[kind]
+    with TemporaryDirectory(prefix="harness-integrity-time-") as private_dir:
+        private_path = Path(private_dir) / live.file_path.name
+        payload = json.loads(live.file_path.read_text())
+        private_path.write_text(json.dumps(payload))
+        loaded = rlm.get_harness_state(state_dir=private_dir, global_=True)
+        assert loaded.file_path == private_path
+        intact_code, intact_output = audit_with(loaded)
+        assert intact_code == 0 and "verified triples: 4/4" in intact_output, intact_output
+        payload["entries"][kind][entry_id][field] = value
+        private_path.write_text(json.dumps(payload))
+        loaded = loaded.load()
+        assert loaded.file_path == private_path and getattr(loaded.entries[kind][entry_id], field) == value
+        code, output = audit_with(loaded)
+        failure = (f"FAIL: harness-integrity: {kind} timestamps must be "
+                   "timezone-aware ISO datetimes with created_at <= updated_at")
+        assert code == 1 and "verified triples: 3/4" in output and failure in output, output
+        print(f"private persisted {kind} {field}={value!r}: loader retains value; audit exit 1; verified triples: 3/4")
 
 # A valid callable in the wrong province is not the cited executable
 # procedure, even though importlib can resolve it.
