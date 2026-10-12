@@ -128,6 +128,19 @@ for lane in lanes:
             identity_drift = True
     if identity_drift:
         continue
+    required_spec_fragments = {
+        "lane report path": f".shokunin/reports/round-<N>/{lane}.md",
+        "volume model selector": "openai-codex/gpt-6-luna",
+        "hard-reasoning model selector": "openai-codex/gpt-6-sol",
+        "one-axis round contract": "exactly one falsifiable axis move",
+        "L1 admission boundary": "Only L1 admits.",
+    }
+    for label, fragment in required_spec_fragments.items():
+        if fragment not in spec.content:
+            errors.append(f"{lane}: subagent spec missing {label}")
+            identity_drift = True
+    if identity_drift:
+        continue
     if (spec.metadata.get("province") != domain
             or spec.metadata.get("axes") != expected_axes
             or spec.metadata.get("rank") != expected_ranks[lane]

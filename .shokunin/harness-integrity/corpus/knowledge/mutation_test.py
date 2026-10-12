@@ -261,6 +261,26 @@ for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-pro
         assert code == 1 and "verified triples: 3/4" in output and failure in output, output
         print(f"copied {kind} {field}: exit 1; verified triples: 3/4")
 
+# Preserve the harness-integrity opening while replacing its remaining spec
+# body with another lane's body: opening-only identity checks used to accept it.
+original = live.entries["subagent"][f"primeagent-{lane}"].content
+opening = original.split(" Read ", 1)[0]
+donor_body = live.entries["subagent"]["primeagent-rlm-dispatch"].content.split(" Read ", 1)[1]
+for mutant_body, expected_label in (
+    (donor_body, "lane report path"),
+    (original.replace("openai-codex/gpt-6-luna", "openai-codex/other")
+     .replace("openai-codex/gpt-6-sol", "openai-codex/other"), "volume model selector"),
+    (original.replace("exactly one falsifiable axis move", "multiple axes freely"), "one-axis round contract"),
+    (original.replace("Only L1 admits.", "Any lane may admit."), "L1 admission boundary"),
+):
+    copied = deepcopy(live)
+    copied.entries["subagent"][f"primeagent-{lane}"].content = (
+        opening + " Read " + donor_body if mutant_body == donor_body else mutant_body)
+    code, output = audit_with(copied)
+    failure = f"FAIL: {lane}: subagent spec missing {expected_label}"
+    assert code == 1 and "verified triples: 3/4" in output and failure in output, output
+    print(f"mutated subagent contract ({expected_label}): exit 1; verified triples: 3/4")
+
 assert json.loads(manifest_path.read_text()) == manifest, "live manifest changed during fixture"
 fresh = rlm.get_harness_state(global_=True)
 assert fresh.entries["subagent"][f"primeagent-{lane}"].metadata["rank"] == live.entries["subagent"][f"primeagent-{lane}"].metadata["rank"], "live harness rank changed"
