@@ -17,3 +17,5 @@ history lives on the craft/* branches of this repo; the fleet ledger is
 .shokunin/MANIFEST.json there.
 
 Province: auditable integrity of the persisted global harness triple (subagent/memory/skill). Promoted shonen -> shokunin at round 4.
+
+Upstream: https://github.com/VeigaPunk/prymeagnt-harness-integrity (branch main carries this corpus; craft/* branches carry round history). Local execution references it with: git fetch harness-integrity main
