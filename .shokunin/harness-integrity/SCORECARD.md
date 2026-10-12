@@ -35,3 +35,8 @@ Supersedes stale planned text above that leaves R3 controls awaiting verificatio
 
 ## Round 13 correction — superseding verdict scope
 The initial R13 claim that the audit structurally checked one-axis and L1 admission clauses is superseded. Literal phrase tests were removed after review found false rejection of paraphrases and inert-appendix false acceptance. Revised checks cover only lane-specific report-address presence and selector presence matching an exact allowed metadata pair. Donor remainder rejected; legitimate paraphrase accepted; wrong selector content and metadata rejected; prior controls and live 4/4 retained. Depth is improved narrowly for those tested address/selector-presence mutations; calibration unchanged. This does not validate round-contract semantics, operative content, or runtime admission. No scalar score inferred.
+
+
+## Round 14 — depth and calibration move (2026-10-12)
+- Baseline: copied subagent payload ID mutation with unchanged dictionary key exited 0 / 4/4. After the change, separate subagent, memory, and skill payload-ID mismatches each exit 1 / 3/4; intact copy and fresh live audit exit 0 / 4/4. Native full mutation suite passes and retains prior controls, including fifth synthetic mint 5/5 and promotion fixtures.
+- Verdict: depth **improved** narrowly for payload-ID detection; calibration **improved** narrowly for rejecting this tested synthetic false pass while retaining intact positive. No numeric score inferred. No live drift, semantic correctness, or runtime attestation claimed. Evidence: `.shokunin/reports/round-14/harness-integrity.md`.

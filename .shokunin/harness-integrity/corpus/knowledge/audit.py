@@ -123,6 +123,10 @@ for lane in lanes:
     }
     identity_drift = False
     for kind, (entry, title, opening) in identity.items():
+        expected_id = ids[kind]
+        if entry.id != expected_id:
+            errors.append(f"{lane}: {kind} payload id {entry.id!r} disagrees with expected key {expected_id!r}")
+            identity_drift = True
         if entry.title != title or not entry.content.startswith(opening):
             errors.append(f"{lane}: {kind} title or content opening disagrees with books or cited procedure")
             identity_drift = True

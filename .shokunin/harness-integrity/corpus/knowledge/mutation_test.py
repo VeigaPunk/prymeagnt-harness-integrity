@@ -248,6 +248,19 @@ digit_code, digit_output = audit_with(digit_state, digit_manifest, digit_books)
 assert digit_code == 0 and "verified triples: 5/5" in digit_output and "FAIL:" not in digit_output, digit_output
 print("digit-bearing fifth mint: exit 0; verified triples: 5/5; digit ID accepted")
 
+# Dictionary-key lookup alone is insufficient: each payload must identify
+# itself with the same expected ID. Mutate only the copied payload ID.
+for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):
+    copied = deepcopy(live)
+    expected_id = f"primeagent-{lane}{suffix}"
+    entry = copied.entries[kind][expected_id]
+    entry.id = "payload-id-mismatch"
+    assert expected_id in copied.entries[kind], "fixture must retain dictionary key"
+    code, output = audit_with(copied)
+    failure = f"FAIL: {lane}: {kind} payload id 'payload-id-mismatch' disagrees with expected key '{expected_id}'"
+    assert code == 1 and "verified triples: 3/4" in output and failure in output, output
+    print(f"{kind} payload ID mismatch copy: exit 1; key retained; verified triples: 3/4")
+
 # The cited global triple must remain this lane's own executable identity,
 # not a valid different lane copied under the same IDs and metadata.
 for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-procedure")):

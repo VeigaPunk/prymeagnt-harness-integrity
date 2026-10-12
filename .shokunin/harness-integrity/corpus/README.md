@@ -7,6 +7,7 @@
 | knowledge/audit.py | reproducible read-only triple/ref verification | 2026-10-11, round 1 |
 
 | knowledge/mutation_test.py | process-local corruption and intact-copy controls for audit.py | 2026-10-11, round 2 |
+| lessons/round-14-identity.md | copied payload-ID mismatch controls for three entry kinds | 2026-10-12, round 14 |
 | lessons/round-2-calibration.md | measured detector results and limitations | 2026-10-11, round 2 |
 | lessons/round-3-calibration.md | independent invalid-import negative control and limits | 2026-10-11, round 3 |
 | lessons/round-4-calibration.md | synthetic authorized promotion and unauthorized rank controls | 2026-10-11, round 4 |
