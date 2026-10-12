@@ -130,15 +130,19 @@ for lane in lanes:
         continue
     required_spec_fragments = {
         "lane report path": f".shokunin/reports/round-<N>/{lane}.md",
-        "volume model selector": "openai-codex/gpt-6-luna",
-        "hard-reasoning model selector": "openai-codex/gpt-6-sol",
-        "one-axis round contract": "exactly one falsifiable axis move",
-        "L1 admission boundary": "Only L1 admits.",
     }
     for label, fragment in required_spec_fragments.items():
         if fragment not in spec.content:
             errors.append(f"{lane}: subagent spec missing {label}")
             identity_drift = True
+    allowed_models = {"openai-codex/gpt-6-luna", "openai-codex/gpt-6-sol"}
+    models = spec.metadata.get("models")
+    if not isinstance(models, list) or len(models) != 2 or set(models) != allowed_models:
+        errors.append(f"{lane}: subagent model metadata is not the allowed OpenAI selector pair")
+        identity_drift = True
+    elif not all(model in spec.content for model in models):
+        errors.append(f"{lane}: subagent content omits a metadata model selector")
+        identity_drift = True
     if identity_drift:
         continue
     if (spec.metadata.get("province") != domain

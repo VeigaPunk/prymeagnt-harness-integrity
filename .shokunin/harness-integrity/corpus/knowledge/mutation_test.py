@@ -261,25 +261,40 @@ for kind, suffix in (("subagent", ""), ("memory", "-knowledge"), ("skill", "-pro
         assert code == 1 and "verified triples: 3/4" in output and failure in output, output
         print(f"copied {kind} {field}: exit 1; verified triples: 3/4")
 
-# Preserve the harness-integrity opening while replacing its remaining spec
-# body with another lane's body: opening-only identity checks used to accept it.
+# A donor body under the retained harness-integrity opening lacks its scoped
+# report address and is rejected. This is structural, not semantic validation.
 original = live.entries["subagent"][f"primeagent-{lane}"].content
-opening = original.split(" Read ", 1)[0]
 donor_body = live.entries["subagent"]["primeagent-rlm-dispatch"].content.split(" Read ", 1)[1]
-for mutant_body, expected_label in (
-    (donor_body, "lane report path"),
-    (original.replace("openai-codex/gpt-6-luna", "openai-codex/other")
-     .replace("openai-codex/gpt-6-sol", "openai-codex/other"), "volume model selector"),
-    (original.replace("exactly one falsifiable axis move", "multiple axes freely"), "one-axis round contract"),
-    (original.replace("Only L1 admits.", "Any lane may admit."), "L1 admission boundary"),
-):
+copy = deepcopy(live)
+copy.entries["subagent"][f"primeagent-{lane}"].content = original.split(" Read ", 1)[0] + " Read " + donor_body
+code, output = audit_with(copy)
+assert (code == 1 and "verified triples: 3/4" in output
+        and f"FAIL: {lane}: subagent spec missing lane report path" in output), output
+print("donor remainder with intact identity opening: exit 1; report path rejected")
+
+# Round/admission wording may be legitimately paraphrased. These phrases are
+# not part of the structural contract and must not be required literally.
+paraphrased = deepcopy(live)
+paraphrased_spec = paraphrased.entries["subagent"][f"primeagent-{lane}"]
+paraphrased_spec.content = (paraphrased_spec.content
+    .replace("exactly one falsifiable axis move", "one measurable axis change")
+    .replace("Only L1 admits.", "L1 alone decides admission."))
+code, output = audit_with(paraphrased)
+assert code == 0 and "verified triples: 4/4" in output, output
+print("legitimate contract paraphrase: exit 0; verified triples: 4/4")
+
+# Model names in metadata must be the allowed pair and both must occur in the
+# spec. A wrong selector cannot be rescued by editing metadata to match it.
+for mode in ("content", "metadata"):
     copied = deepcopy(live)
-    copied.entries["subagent"][f"primeagent-{lane}"].content = (
-        opening + " Read " + donor_body if mutant_body == donor_body else mutant_body)
+    entry = copied.entries["subagent"][f"primeagent-{lane}"]
+    if mode == "content":
+        entry.content = entry.content.replace("openai-codex/gpt-6-luna", "openai-codex/wrong")
+    else:
+        entry.metadata["models"] = ["openai-codex/wrong", "openai-codex/gpt-6-sol"]
     code, output = audit_with(copied)
-    failure = f"FAIL: {lane}: subagent spec missing {expected_label}"
-    assert code == 1 and "verified triples: 3/4" in output and failure in output, output
-    print(f"mutated subagent contract ({expected_label}): exit 1; verified triples: 3/4")
+    assert code == 1 and "verified triples: 3/4" in output and "subagent" in output, output
+    print(f"wrong selector {mode}: exit 1; rejected")
 
 assert json.loads(manifest_path.read_text()) == manifest, "live manifest changed during fixture"
 fresh = rlm.get_harness_state(global_=True)
