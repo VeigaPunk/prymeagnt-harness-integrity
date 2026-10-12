@@ -54,3 +54,8 @@
 
 ## R7/R6 independent review and L1 judgment
 - Named non-author callable-and-parent-review at a30472f independently reran R6 synthetic active/null projection, secret/non-UTC rejection, actual benign Git gate positive exit0 and negative whitespace control nonzero. L1 admits narrow R6 calibration improved/coverage unchanged for executable parent-owned receipt contract. No actual parent `goal.get()` projection supplied or host autonomous gate/acceptance/stop observed; SHONEN end-to-end unchecked.
+
+## Round 7 — 2026-10-12 — calibration move
+- Baseline `da99ff203b9c69707d2ae86eb956cee2ae7415ae` had the R6 comparator but no R7 actual supplied-projection comparison recorded. L1 supplied a redacted projection observed at `2026-10-12T01:09:54.569634+00:00` (goal active; tokens 6636364; elapsed 10517 sec; token budget null). Running the pinned comparator (`compare_parent_receipt.py --base 52d573bdf502cb1416d65c0756106db9d5b3bde2 --candidate bc1bb3c572981158f8ac0b4994d3333741650886`) exited 0; pinned `git diff --check` exit 0. One earlier projection at `01:09:10.860478Z` also yielded 0. Both are L1-supplied, not authenticated telemetry.
+- `check_parent_receipt_contract.py` passed: synthetic/null inputs, secret/objective and non-UTC rejection, actual benign Git gate pass and stdin whitespace negative control.
+- **Calibration improved narrowly**: an actual parent-supplied projection was compared and recorded against the pinned benign Git gate. **Coverage unchanged**: no new policy branch. Comparator reports autonomous gate, acceptance, loop stop, and mission goal `not-assessed`. No authenticated autonomous telemetry, host acceptance, goal-success or stop claim. SHONEN end-to-end remains unchecked; no promotion. See round-7 report.
