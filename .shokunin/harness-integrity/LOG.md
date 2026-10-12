@@ -82,3 +82,8 @@
 
 ## R8/R7 independent review and L1 judgment
 - Named non-author promotion-and-session-review at 984a3a6 independently ran prior audit against copied roster promotion_round=3 while ledger says round4: old false pass 4/4; updated both promoted lanes reject 3/4. Native mutation/live 4/4 and synthetic fifth mint 5/5 retained. L1 admits R8 calibration improved/depth unchanged; no coordinated forged ledger/roster or live-drift proof.
+
+
+## Round 10 — 2026-10-12 — no-axis decision
+- Scout reported contradictory grant of global mutation authority in content after a valid opening, while audit remains 4/4. Examined for a small structural invariant grounded in cited province; none is defensible. Province/domain and refusal do not specify canonical complete text. Phrase matching is brittle, while comparing against another mutable copy is not independent semantic evidence. No audit/test change.
+- Verdict: depth **unchanged**, calibration **unchanged**; no scalar inferred. This is a copied-state false accept report, not observed live drift. Existing checks cover opening identity only, not full semantic content. Safe future remedy needs independently authoritative complete procedure/source, not an arbitrary phrase rule. No global/MANIFEST/source mutation or push.
