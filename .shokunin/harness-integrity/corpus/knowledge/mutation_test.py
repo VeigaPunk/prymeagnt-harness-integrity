@@ -359,6 +359,26 @@ for mode in ("content", "metadata"):
     assert code == 1 and "verified triples: 3/4" in output and "subagent" in output, output
     print(f"wrong selector {mode}: exit 1; rejected")
 
+# Source is a structural nonempty-string requirement, not an origin or
+# authenticity claim. Mutate private persisted copies and reload explicitly.
+for kind, suffix in (("memory", "-knowledge"), ("subagent", ""), ("skill", "-procedure")):
+    entry_id = f"primeagent-harness-integrity{suffix}"
+    with TemporaryDirectory(prefix="harness-integrity-source-") as private_dir:
+        private_path = Path(private_dir) / live.file_path.name
+        payload = json.loads(live.file_path.read_text())
+        private_path.write_text(json.dumps(payload))
+        loaded = rlm.get_harness_state(state_dir=private_dir, global_=True)
+        intact_code, intact_output = audit_with(loaded)
+        assert intact_code == 0 and "verified triples: 4/4" in intact_output, intact_output
+        payload["entries"][kind][entry_id]["source"] = ""
+        private_path.write_text(json.dumps(payload))
+        loaded = loaded.load()
+        assert loaded.file_path == private_path and loaded.entries[kind][entry_id].source == ""
+        code, output = audit_with(loaded)
+        failure = f"FAIL: harness-integrity: {kind} source must be a nonempty string: ''"
+        assert code == 1 and "verified triples: 3/4" in output and failure in output, output
+        print(f"private persisted {kind} empty source: loader retains value; audit exit 1; verified triples: 3/4")
+
 assert json.loads(manifest_path.read_text()) == manifest, "live manifest changed during fixture"
 fresh = rlm.get_harness_state(global_=True)
 assert fresh.entries["subagent"][f"primeagent-{lane}"].metadata["rank"] == live.entries["subagent"][f"primeagent-{lane}"].metadata["rank"], "live harness rank changed"

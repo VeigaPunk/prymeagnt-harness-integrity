@@ -117,3 +117,8 @@ Supersedes the initial R13 depth-improved wording wherever it implies semantic o
 - Change: expected minted subagent/memory/skill entries now require both timestamps to parse as timezone-aware ISO datetimes, with `created_at <= updated_at`. No provenance or full history inferred.
 - Native verification: actual persisted private copy, explicit cached `.load()`, intact private 4/4, five timestamp mutants each 3/4, existing version mutants each 3/4, prior positive and negative suite, and fresh live 4/4. Standalone live audit 4/4; diff check clean.
 - Verdict: depth **improved** narrowly for these structural timestamp corruptions; calibration **unchanged**. No global/MANIFEST/provider/daemon mutation. See round-16 report for command and commit receipt.
+
+## Round 17 — 2026-10-12 — private persisted source presence
+- Before: empty `source` on an expected global triple entry survives the actual persisted-state loader, while the audit had no source guard. This is synthetic copied JSON, not observed live drift. Native `_validate_entry_shape` requires a nonempty source string on writes; the audit asserts no provenance/origin or `source == "agent"` requirement.
+- Change: expected subagent, memory, and skill entries require `source` to be a nonempty string. Private persisted `.load()` fixtures independently blank each kind; loader retains the corruption and the audit rejects it at 3/4. Intact private and fresh live audit remain 4/4; all previous mutation controls pass.
+- Verdict: depth **improved** narrowly for empty/wrong-type structural source values; calibration **unchanged**. No live corruption observed. No global harness, manifest, provider, daemon, merge, or push mutation. See `.shokunin/reports/round-17/harness-integrity.md`.

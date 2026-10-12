@@ -124,6 +124,9 @@ for lane in lanes:
     }
     identity_drift = False
     for kind, (entry, title, opening) in identity.items():
+        if not isinstance(entry.source, str) or not entry.source:
+            errors.append(f"{lane}: {kind} source must be a nonempty string: {entry.source!r}")
+            identity_drift = True
         if type(entry.version) is not int or entry.version < 1:
             errors.append(f"{lane}: {kind} version must be a positive integer: {entry.version!r}")
             identity_drift = True
