@@ -33,3 +33,16 @@ Substring presence is not semantic evidence that a clause is operative or truthf
 - [ ] No cross-domain bleed with accurate PROVINCE — not assessed in this round.
 
 Report commit hash: written after work commit `e5d52893d2779086c8e3aa6e79446a19cfb7a2ce`.
+
+
+## Reviewer correction — supersedes initial R13 contract claim
+The initial report's claim that literal one-axis and L1 admission phrases supplied a robust structural check is withdrawn. Those checks were removed: phrase matching could reject valid paraphrases and be defeated by inert appended text. The corrected audit checks only (1) the lane-specific report address is present, (2) subagent metadata models are exactly `openai-codex/gpt-6-luna` and `openai-codex/gpt-6-sol`, and (3) both metadata selectors occur in spec text. It does **not** test semantic or operative round-contract clauses.
+
+Correction work commit: `ef2945b3b0717bd7134488d90aee1ca960af82d9`.
+
+### Corrected evidence and verdict
+- Donor remainder with the harness-integrity opening: exit 1 / 3/4 because the donor lacks its own lane-specific report address.
+- Legitimate paraphrase of one-axis and L1 admission wording: exit 0 / 4/4.
+- Wrong selector in content and wrong selector metadata: each exit 1 / 3/4.
+- Existing copied-state controls, authorized promotion 4/4, synthetic fifth/digit mint 5/5, and live audit 4/4 retained.
+- Corrected verdict: depth **improved narrowly** for tested dispatch-address and selector-presence drift; calibration **unchanged**. No semantic contract-fidelity, runtime model admission/routing, actual dispatch, or future-state claim. Substring presence can still be inert; this is not a generic semantic validator.
