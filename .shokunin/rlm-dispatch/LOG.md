@@ -67,3 +67,10 @@
 
 ## R8/R7 independent review and L1 judgment
 - Named non-author promotion-and-session-review at 984a3a6 reran eight synthetic fixtures 0/1/0/1/1/0/1/1; old verifier false PASS same-child swapped-session, updated rejects via observed registry sessionFile. L1 admits R7 operability improved/calibration unchanged; path binding is not authenticated provenance and repo-relative fixtures require repo-root invocation.
+
+
+## Round 8 — 2026-10-11
+- Calibration audit target: determine whether `Path(...).resolve()` comparison of observed registry `sessionFile` and supplied session path has a material false accept/reject for the recorded RLM receipt structure. The round-2 observed registry contains an absolute `sessionFile` naming the JSONL under its child session directory (`.../sub-52e968c6/01a12d0c-e484-7627-b92e-d6138e736572.jsonl`); artifact path and fields are recorded in round 7 report. No additional undocumented field or cryptographic authenticity requirement was assumed.
+- No material counterexample found: a symlink alias resolving to the same session file identifies the same underlying file, while distinct files resolve differently; registry value is not an authentication anchor by itself. This check cannot establish authenticity, and no such claim is made.
+- Baseline verifier at `984a3a6` and current verifier returned the same eight fixture outcomes in README order: 0/1/0/1/1/0/1/1. Thus existing false-positive/false-negative controls neither improved nor regressed. Synthetic-only; no runtime or usage-depletion inference.
+- Operability: unchanged. Calibration: unchanged; no axis advance. Preserve verifier code and prior fixtures. Evidence/report: `.shokunin/reports/round-8/rlm-dispatch.md`.
